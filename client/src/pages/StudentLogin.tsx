@@ -10,33 +10,54 @@ import {
 } from "@mui/material";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
-import type { JwtPayload } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+
+interface GoogleUser {
+  email?: string;
+  name?: string;
+  picture?: string;
+  [key: string]: any;
+}
 
 const StudentLogin: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // Handle Google login
   const handleGoogleLogin = (credentialResponse: any) => {
     if (credentialResponse.credential) {
-      const decoded = jwtDecode<JwtPayload>(credentialResponse.credential);
+      const decoded = jwtDecode<GoogleUser>(credentialResponse.credential);
       console.log("Google Login Success:", decoded);
 
-      // Store token and redirect
+      // Save decoded student info
       localStorage.setItem("student_token", credentialResponse.credential);
+      localStorage.setItem("student", JSON.stringify({
+        email: decoded.email,
+        name: decoded.name,
+        picture: decoded.picture,
+        loginType: "google",
+      }));
+
       navigate("/student-dashboard");
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  // Handle manual login
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Connect to your backend login API
-    console.log("Normal Login:", { email, password });
+    // TODO: Replace with actual API call to backend for validation
+    const dummyStudent = {
+      email,
+      name: "Dummy Student",
+      picture: "", // optional
+      loginType: "credentials",
+    };
 
-    // Simulate login and redirect
     localStorage.setItem("student_token", "dummy_token");
+    localStorage.setItem("student", JSON.stringify(dummyStudent));
+
     navigate("/student-dashboard");
   };
 

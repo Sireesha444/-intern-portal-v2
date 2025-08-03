@@ -1,121 +1,54 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  Avatar,
-  Button,
-  List,
-  ListItem,
-  ListItemText,
-  Paper,
-  Divider,
-} from "@mui/material";
-import { Notifications, Bookmark, Work } from "@mui/icons-material";
+import { Link } from "react-router-dom";
+import "../styles/StudentDashboard.css"; // Ensure this file exists and is correctly linked
 
 const StudentDashboard: React.FC = () => {
   return (
-    <Box
-      sx={{
-        p: { xs: 2, md: 4 },
-        backgroundColor: "#f5faff",
-        minHeight: "100vh",
-        color: "#002f6c",
-      }}
-    >
-      {/* Profile Card */}
-      <Paper
-        elevation={4}
-        sx={{
-          p: 3,
-          borderRadius: 4,
-          mb: 4,
-          display: "flex",
-          flexDirection: { xs: "column", sm: "row" },
-          alignItems: "center",
-          gap: 3,
-          backgroundColor: "#fff",
-        }}
-      >
-        <Avatar
-          sx={{ width: 90, height: 90 }}
-          src="https://i.pravatar.cc/150?img=3"
-        />
-        <Box>
-          <Typography variant="h5" fontWeight="bold" sx={{ color: "#1976d2" }}>
-            Hi, Sireesha 👋
-          </Typography>
-          <Typography variant="body1" sx={{ color: "#666", mb: 1 }}>
-            Final Year Computer Science Student
-          </Typography>
-          <Button
-            variant="outlined"
-            sx={{
-              color: "#1976d2",
-              borderColor: "#1976d2",
-              fontWeight: "bold",
-              "&:hover": { backgroundColor: "#e3f2fd" },
-            }}
-          >
-            Edit Profile
-          </Button>
-        </Box>
-      </Paper>
+    <div className="student-dashboard">
+      {/* Header */}
+      <div className="dashboard-header">
+        <div className="header-left">
+          <span className="emoji">🎓</span>
+          <h1>Student Dashboard</h1>
+        </div>
+        <Link to="/" className="logout-button">
+          Logout
+        </Link>
+      </div>
 
-      {/* Dashboard Sections */}
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        {/* Applied Internships */}
-        <DashboardSection title="Applied Internships" icon={<Work />} items={[
-          { title: "Frontend Developer - Google", date: "Applied on July 20, 2025" },
-          { title: "ML Intern - Microsoft", date: "Applied on July 25, 2025" },
-        ]} />
+      {/* Welcome message */}
+      <div className="welcome-message">
+        <h2>Welcome, Student!</h2>
+        <p>Find your dream internship, apply easily, and track your application status.</p>
+      </div>
 
-        {/* Saved Internships */}
-        <DashboardSection title="Saved Internships" icon={<Bookmark />} items={[
-          { title: "UI/UX Intern - Adobe" },
-          { title: "Backend Developer - Amazon" },
-        ]} />
+      {/* Cards */}
+      <div className="card-container">
+        <div className="card">
+          <h3>📋 View Available Internships</h3>
+          <p>Browse and apply to internships that match your skills and interests.</p>
+          <Link to="/internships">
+            <button className="primary-btn">Explore Internships</button>
+          </Link>
+        </div>
 
-        {/* Notifications */}
-        <DashboardSection title="Notifications" icon={<Notifications />} items={[
-          { title: "Your resume was viewed by Meta HR" },
-          { title: "New internship matches your profile" },
-        ]} />
-      </Box>
-    </Box>
-  );
-};
+        <div className="card">
+          <h3>📄 View Applications</h3>
+          <p>Check your application status and history.</p>
+          <Link to="/applications">
+            <button className="primary-btn">My Applications</button>
+          </Link>
+        </div>
 
-interface SectionProps {
-  title: string;
-  icon: React.ReactNode;
-  items: { title: string; date?: string }[];
-}
-
-const DashboardSection: React.FC<SectionProps> = ({ title, icon, items }) => {
-  return (
-    <Paper sx={{ p: 3, borderRadius: 3, backgroundColor: "#fff" }} elevation={2}>
-      <Typography variant="h6" fontWeight="bold" mb={2} sx={{ display: "flex", alignItems: "center", color: "#1976d2" }}>
-        {icon}
-        <span style={{ marginLeft: 8 }}>{title}</span>
-      </Typography>
-      <List>
-        {items.map((item, index) => (
-          <React.Fragment key={index}>
-            <ListItem disablePadding>
-              <ListItemText
-                primary={item.title}
-                secondary={item.date}
-                sx={{
-                  "& .MuiListItemText-primary": { fontWeight: 500 },
-                  "& .MuiListItemText-secondary": { fontSize: 13, color: "#666" },
-                }}
-              />
-            </ListItem>
-            {index < items.length - 1 && <Divider sx={{ my: 1 }} />}
-          </React.Fragment>
-        ))}
-      </List>
-    </Paper>
+        <div className="card">
+          <h3>📝 Update Profile</h3>
+          <p>Keep your personal details and resume up to date.</p>
+          <Link to="/profile">
+            <button className="primary-btn">Edit Profile</button>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -1,104 +1,75 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Paper,
-  Typography,
-  TextField,
-  Button,
-  Link,
-} from "@mui/material";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "../styles/CompanyLogin.css";
 
 const CompanyLogin: React.FC = () => {
-  const navigate = useNavigate();
+  const [step, setStep] = useState<"login" | "otp">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [otp, setOTP] = useState("");
+  const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
+    try {
+      const res = await axios.post("/api/company/login", { email, password });
+      if (res.data.success) {
+        setStep("otp");
+      } else {
+        alert(res.data.message || "Failed to send OTP");
+      }
+    } catch (err) {
+      alert("Login failed.");
+      console.error(err);
+    }
+  };
 
-    // TODO: Call your login API here
-    console.log("Email:", email);
-    console.log("Password:", password);
-
-    // Navigate to dashboard after login
-    navigate("/company-dashboard");
+  const handleOTPVerify = async () => {
+    try {
+      const res = await axios.post("/api/company/verify-otp", { email, otp });
+      if (res.data.message === "Login successful") {
+        navigate("/company-dashboard");
+      } else {
+        alert("Invalid OTP.");
+      }
+    } catch (err) {
+      alert("OTP verification failed.");
+      console.error(err);
+    }
   };
 
   return (
-    <Box
-      sx={{
-        width: "100vw",  
-        height: "100vh",
-        background: "linear-gradient(to right, #1976d2, #42a5f5)", // Blue background
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "1rem",
-      }}
-    >
-      <Paper
-        elevation={6}
-        sx={{
-          padding: "3rem",
-          borderRadius: "16px",
-          maxWidth: "400px",
-          width: "100%",
-          textAlign: "center",
-          backgroundColor: "#ffffff", // White card
-        }}
-      >
-        <Typography
-          variant="h4"
-          gutterBottom
-          sx={{ fontWeight: "bold", color: "#1976d2" }}
-        >
-          Company Login
-        </Typography>
-
-        <Typography variant="body1" sx={{ mb: 3, color: "#555" }}>
-          Enter your credentials to continue
-        </Typography>
-
-        <form onSubmit={handleLogin}>
-          <TextField
-            label="Email"
+    <div className="login-container">
+      {step === "login" ? (
+        <>
+          <h2>Company Login</h2>
+          <input
             type="email"
-            variant="outlined"
-            fullWidth
-            required
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            sx={{ mb: 2 }}
           />
-
-          <TextField
-            label="Password"
+          <input
             type="password"
-            variant="outlined"
-            fullWidth
-            required
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            sx={{ mb: 3 }}
           />
-
-          <Button
-            variant="contained"
-            color="primary"
-            type="submit"
-            fullWidth
-            sx={{ mb: 2 }}
-          >
-            Login
-          </Button>
-
-          <Link href="/company/otp-login" underline="hover" sx={{ fontSize: 14 }}>
-            Or login with OTP
-          </Link>
-        </form>
-      </Paper>
-    </Box>
+          <button onClick={handleLogin}>Send OTP</button>
+        </>
+      ) : (
+        <>
+          <h2>Enter OTP</h2>
+          <input
+            type="text"
+            placeholder="OTP"
+            value={otp}
+            onChange={(e) => setOTP(e.target.value)}
+          />
+          <button onClick={handleOTPVerify}>Verify OTP</button>
+        </>
+      )}
+    </div>
   );
 };
 
