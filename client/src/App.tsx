@@ -6,6 +6,7 @@ import CompanyLogin from "./pages/CompanyLogin";
 import CompanyDashboard from "./pages/CompanyDashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import "./styles/StudentDashboard.css";
+import StudentRegister from "./pages/StudentRegister";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/student-login" element={<StudentLogin />} />
         <Route path="/company-login" element={<CompanyLogin />} />
+         <Route path="/student-register" element={<StudentRegister />} />
 
         {/* 🔐 Student Dashboard (Protected) */}
         <Route

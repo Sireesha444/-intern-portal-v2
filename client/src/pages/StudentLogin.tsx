@@ -1,3 +1,4 @@
+// src/pages/StudentLogin.tsx
 import React, { useState } from "react";
 import {
   Box,
@@ -11,6 +12,7 @@ import {
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface GoogleUser {
   email?: string;
@@ -21,44 +23,72 @@ interface GoogleUser {
 
 const StudentLogin: React.FC = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
 
-  // Handle Google login
-  const handleGoogleLogin = (credentialResponse: any) => {
-    if (credentialResponse.credential) {
-      const decoded = jwtDecode<GoogleUser>(credentialResponse.credential);
-      console.log("Google Login Success:", decoded);
+  // Google login handler
+  const handleGoogleLogin = async (credentialResponse: any) => {
+    try {
+      if (credentialResponse.credential) {
+        const decoded = jwtDecode<GoogleUser>(credentialResponse.credential);
+        console.log("Google Login Success:", decoded);
 
-      // Save decoded student info
-      localStorage.setItem("student_token", credentialResponse.credential);
-      localStorage.setItem("student", JSON.stringify({
-        email: decoded.email,
-        name: decoded.name,
-        picture: decoded.picture,
-        loginType: "google",
-      }));
+        // Send user data to backend to create/find student
+        const res = await axios.post("http://localhost:5000/api/students/google-login", {
+          name: decoded.name,
+          email: decoded.email,
+        });
 
-      navigate("/student-dashboard");
+        const studentId = res.data.studentId;
+
+        localStorage.setItem("student_token", credentialResponse.credential);
+        localStorage.setItem(
+          "student",
+          JSON.stringify({
+            email: decoded.email,
+            name: decoded.name,
+            picture: decoded.picture,
+            loginType: "google",
+            studentId,
+          })
+        );
+
+        // ✅ Navigate with studentId
+        navigate("/student-dashboard", { state: { studentId } });
+      }
+    } catch (error) {
+      console.error("Google login failed", error);
+      alert("Google login failed. Please try again.");
     }
   };
 
-  // Handle manual login
+  // Manual login
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // TODO: Replace with actual API call to backend for validation
-    const dummyStudent = {
-      email,
-      name: "Dummy Student",
-      picture: "", // optional
-      loginType: "credentials",
-    };
+    try {
+      const res = await axios.post("http://localhost:5000/api/students/login", {
+        studentId,
+        password,
+      });
 
-    localStorage.setItem("student_token", "dummy_token");
-    localStorage.setItem("student", JSON.stringify(dummyStudent));
+      const { studentId: returnedId } = res.data;
 
-    navigate("/student-dashboard");
+      localStorage.setItem("student_token", "custom_token_placeholder");
+      localStorage.setItem(
+        "student",
+        JSON.stringify({
+          studentId: returnedId,
+          loginType: "credentials",
+        })
+      );
+
+      // ✅ Navigate with studentId
+      navigate("/student-dashboard", { state: { studentId: returnedId } });
+    } catch (error) {
+      alert("Invalid credentials or server error");
+      console.error("Login failed", error);
+    }
   };
 
   return (
@@ -82,12 +112,12 @@ const StudentLogin: React.FC = () => {
           sx={{ mt: 2, display: "flex", flexDirection: "column", gap: 2 }}
         >
           <TextField
-            label="Email"
+            label="Student ID"
             variant="outlined"
             fullWidth
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={studentId}
+            onChange={(e) => setStudentId(e.target.value)}
           />
 
           <TextField
@@ -114,9 +144,7 @@ const StudentLogin: React.FC = () => {
           </Button>
         </Box>
 
-        <Divider sx={{ my: 3, fontWeight: "bold", color: "#666" }}>
-          OR
-        </Divider>
+        <Divider sx={{ my: 3, fontWeight: "bold", color: "#666" }}>OR</Divider>
 
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <GoogleLogin onSuccess={handleGoogleLogin} />
