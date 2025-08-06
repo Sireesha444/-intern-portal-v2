@@ -4,10 +4,10 @@ import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import twilio from "twilio";
 
-const accountSid = "your_twilio_sid";
-const authToken = "your_twilio_auth_token";
+const accountSid = "AC69f951c0399d45dceab2368e0d9729f4";
+const authToken = "dda5cb47dc2d62cba71b95f1bf47120b";
 const twilioClient = twilio(accountSid, authToken);
-const twilioNumber = "your_twilio_number";
+const twilioNumber = "+9392542746";
 
 // Step 1: Login - send OTP
 export const companyLogin = async (req: Request, res: Response) => {
