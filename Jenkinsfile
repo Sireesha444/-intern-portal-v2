@@ -28,7 +28,7 @@ pipeline {
             steps {
                 dir('server') {
                     sh 'npm install'
-                    sh 'npm run build' // or "tsc" if you use TypeScript
+                    sh 'npm run build' // for TypeScript compilation
                 }
             }
         }
