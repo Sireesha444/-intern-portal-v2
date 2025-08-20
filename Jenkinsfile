@@ -2,55 +2,40 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Sireesha444/-intern-portal-v2.git'
+                git 'https://github.com/Sireesha444/-intern-portal-v2.git'
             }
         }
 
-        stage('Install Backend Dependencies') {
+        stage('Install Client Dependencies') {
             steps {
-                dir('backend') {
+                dir('client') {
                     sh 'npm install'
                 }
             }
         }
 
-        stage('Install Frontend Dependencies') {
+        stage('Build Client') {
             steps {
-                dir('frontend') {
-                    sh 'npm install'
-                }
-            }
-        }
-
-        stage('Build Frontend') {
-            steps {
-                dir('frontend') {
+                dir('client') {
                     sh 'npm run build'
                 }
             }
         }
 
-        stage('Run Backend Tests') {
+        stage('Install Server Dependencies') {
             steps {
-                dir('backend') {
-                    sh 'npm test'
+                dir('server') {
+                    sh 'npm install'
+                    sh 'npm run build' // or "tsc" if you use TypeScript
                 }
             }
         }
 
-        stage('Package Backend') {
+        stage('Archive Artifacts') {
             steps {
-                dir('backend') {
-                    sh 'npm run build || echo "No build step for backend"'
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo '🚀 Deploy step goes here (Docker, server copy, or cloud deploy)'
+                archiveArtifacts artifacts: 'client/build/**, server/dist/**', fingerprint: true
             }
         }
     }
