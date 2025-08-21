@@ -1,41 +1,19 @@
 pipeline {
     agent any
-
     stages {
-        stage('Checkout') {
+        stage('Clone') {
             steps {
-                git 'https://github.com/Sireesha444/-intern-portal-v2.git'
+                git 'https://github.com/your-username/your-repo.git'
             }
         }
-
-        stage('Install Client Dependencies') {
+        stage('Build Docker Image') {
             steps {
-                dir('client') {
-                    sh 'npm install'
-                }
+                sh 'docker build -t myproject:latest .'
             }
         }
-
-        stage('Build Client') {
+        stage('Run Container') {
             steps {
-                dir('client') {
-                    sh 'npm run build'
-                }
-            }
-        }
-
-        stage('Install Server Dependencies') {
-            steps {
-                dir('server') {
-                    sh 'npm install'
-                    sh 'npm run build' // for TypeScript compilation
-                }
-            }
-        }
-
-        stage('Archive Artifacts') {
-            steps {
-                archiveArtifacts artifacts: 'client/build/**, server/dist/**', fingerprint: true
+                sh 'docker run -d -p 3000:3000 myproject:latest'
             }
         }
     }
