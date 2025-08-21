@@ -4,15 +4,15 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
+                // Clone your GitHub repo
                 git branch: 'main', url: 'https://github.com/Sireesha444/-intern-portal-v2.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh 'docker build -t intern-portal:latest .'
-                }
+                // Build Docker image for your project
+                bat 'docker build -t intern-portal:latest .'
             }
         }
 
@@ -20,12 +20,27 @@ pipeline {
             steps {
                 script {
                     // Stop old container if running
-                    sh 'docker ps -q --filter "name=intern-portal" | grep -q . && docker stop intern-portal && docker rm -f intern-portal || true'
+                    bat '''
+                    docker ps -q --filter "name=intern-portal" | findstr . >nul
+                    if %ERRORLEVEL%==0 (
+                        docker stop intern-portal
+                        docker rm -f intern-portal
+                    )
+                    '''
 
                     // Run new container
-                    sh 'docker run -d --name intern-portal -p 3000:3000 intern-portal:latest'
+                    bat 'docker run -d --name intern-portal -p 3000:3000 intern-portal:latest'
                 }
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Deployment successful! Access app at http://localhost:3000'
+        }
+        failure {
+            echo '❌ Deployment failed. Check logs for details.'
         }
     }
 }
