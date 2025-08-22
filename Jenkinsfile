@@ -1,11 +1,19 @@
 pipeline {
     agent any
+
+    environment {
+        IMAGE_NAME = 'intern-portal:latest'
+        CONTAINER_PORT = '3000'
+    }
+
     stages {
-        stage('Clone Repository') {
+        stage('Checkout Repository') {
             steps {
-                git 'https://github.com/Sireesha444/-intern-portal-v2.git'
+                // Checkout the main branch explicitly
+                git branch: 'main', url: 'https://github.com/Sireesha444/-intern-portal-v2.git'
             }
         }
+
         stage('Check Docker') {
             steps {
                 bat '''
@@ -14,17 +22,27 @@ pipeline {
                 '''
             }
         }
+
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t intern-portal:latest .'
+                echo "Building Docker image ${IMAGE_NAME}..."
+                bat "docker build -t ${IMAGE_NAME} ."
             }
         }
+
         stage('Run Docker Container') {
             steps {
-                bat 'docker run -d -p 3000:3000 intern-portal:latest'
+                echo "Running Docker container on port ${CONTAINER_PORT}..."
+                // Stop existing container if already running
+                bat '''
+                for /f "tokens=*" %%i in ('docker ps -q -f "ancestor=${IMAGE_NAME}"') do docker stop %%i
+                '''
+                // Run new container
+                bat "docker run -d -p ${CONTAINER_PORT}:${CONTAINER_PORT} ${IMAGE_NAME}"
             }
         }
     }
+
     post {
         success {
             echo '✅ Deployment completed successfully!'
